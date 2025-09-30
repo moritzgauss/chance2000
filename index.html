@@ -12,10 +12,12 @@
   header h1 { margin:0; line-height:1.1; font-weight:700; font-size:clamp(48px,10vw,110px); }
   .cta { margin-bottom:10px; font-weight:700; font-size:20px; }
   .stage { position:relative; display:inline-block; width:90vw; max-width:680px; aspect-ratio:4/3; overflow:hidden; margin:0 auto 15px; background:#fff; }
-  .stage img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition: opacity 0.5s linear; mix-blend-mode:multiply; user-select:none; pointer-events:none; }
-  .img-front { opacity:1; z-index:1; }
-  .img-back { opacity:0; z-index:0; }
-  .counter { font-size:28px; font-weight:700; margin-bottom:30px; }
+  .stage img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition: opacity 1s linear; mix-blend-mode:multiply; user-select:none; pointer-events:none; }
+  .img-front { opacity:1; z-index:2; }
+  .img-back { opacity:0; z-index:1; }
+  .img-merz2 { opacity:0; z-index:3; }
+  .counter { font-size:28px; font-weight:700; margin-bottom:10px; }
+  .hint { font-size:20px; font-weight:700; color:#f00; margin-top:5px; opacity:0; transition: opacity 0.5s ease; }
   details { max-width:90vw; width:700px; text-align:left; font-size:16px; color:#333; margin-bottom:20px; }
   summary { font-weight:700; font-size:18px; cursor:pointer; }
   summary::-webkit-details-marker { display:none; }
@@ -30,22 +32,25 @@
 <div class="cta">Klick mich 👅</div>
 
 <div class="stage" id="stage" tabindex="0" role="button">
-  <img id="merz" class="img-front"
-       src="https://www1.wdr.de/nachrichten/friedrich-merz-220~_v-ARDFotogalerie.jpg"
+  <img id="merz1" class="img-front"
+       src="https://cdn.prod.www.spiegel.de/images/9a30ebea-1301-4f90-baf4-a28990751a80_w1296_r1.525320317266626_fpx45.22_fpy45.webp"
        alt="Friedrich Merz">
+  <img id="merz2" class="img-merz2"
+       src="https://www1.wdr.de/nachrichten/friedrich-merz-220~_v-ARDFotogalerie.jpg"
+       alt="Friedrich Merz 2">
   <img id="trump" class="img-back"
        src="https://images.tagesschau.de/image/f77d60ed-be84-4d34-8487-a42989a7ac9e/AAABl89YRRc/AAABmKJJykw/16x7/trump-4076.jpg?width=1280"
        alt="Donald Trump">
 </div>
 
 <div class="counter" id="counter">0</div>
+<div class="hint" id="hint">keep going 👅 🐩 👮🏻</div>
 
 <details>
   <summary>Info</summary>
   <div style="margin-top:10px; line-height:1.6">
     Idee frei nach Christoph Schlingensief (RIP).<br>
-    Bilderquelle: WDR (Friedrich Merz) und Tagesschau (Donald Trump).<br>
-    Klicks werden nur während dieser Session gezählt.
+    Bilderquelle: WDR (Friedrich Merz) und Tagesschau (Donald Trump).
   </div>
 </details>
 
@@ -53,46 +58,60 @@
 <audio id="clickSound" src="https://raw.githubusercontent.com/moritzgauss/chance2000/refs/heads/main/slap-soundmaster13-49669815_4L20wGP.mp3"></audio>
 
 <script>
-  const stage = document.getElementById('stage');
-  const merz = document.getElementById('merz');
-  const trump = document.getElementById('trump');
-  const counter = document.getElementById('counter');
-  const audio = document.getElementById('clickSound');
+const stage = document.getElementById('stage');
+const merz1 = document.getElementById('merz1');
+const merz2 = document.getElementById('merz2');
+const trump = document.getElementById('trump');
+const counter = document.getElementById('counter');
+const hint = document.getElementById('hint');
+const audio = document.getElementById('clickSound');
 
-  let clicks = 0;
-  const threshold = 30;
-  let switched = false;
+let clicks = 0;
+let switched = false;
 
-  function handleClick(){
-    clicks++;
-    counter.textContent = clicks;
+function handleClick() {
+  clicks++;
+  counter.textContent = clicks;
 
-    // Play sound on each click
-    audio.currentTime = 0;
-    audio.play().catch(()=>{}); // catch errors in case of autoplay restrictions
+  // Sound abspielen
+  audio.currentTime = 0;
+  audio.play().catch(()=>{});
 
-    if(!switched && clicks >= threshold){
-      trump.style.transition = 'opacity 4s linear';
-      trump.style.opacity = 1;
-      merz.style.opacity = 0;
-      switched = true;
-    } else if(switched){
-      trump.style.transition = 'opacity 0.3s linear';
-      merz.style.transition = 'opacity 0.3s linear';
-      if(trump.style.opacity == "1"){
-        trump.style.opacity = 0;
-        merz.style.opacity = 1;
-      } else {
-        trump.style.opacity = 1;
-        merz.style.opacity = 0;
-      }
-    }
+  // Erst 10 Klicks: nur merz1 sichtbar
+  if(clicks <= 10){
+    merz1.style.opacity = 1;
+    merz2.style.opacity = 0;
+    trump.style.opacity = 0;
   }
 
-  stage.addEventListener('click', handleClick);
-  stage.addEventListener('keydown', e=>{
-    if(e.key==='Enter'||e.key===' '){ e.preventDefault(); handleClick(); }
-  });
+  // Ab Klick 11: merz2 langsam einblenden
+  if(clicks >= 11 && clicks < 30){
+    const t = (clicks - 10) / 20; // zwischen 0 und 1
+    merz1.style.opacity = 1 - t;
+    merz2.style.opacity = t;
+    trump.style.opacity = t * 0.5; // Trump langsam durchscheinen lassen
+  }
+
+  // Ab Klick 30: Trump voll einblenden
+  if(clicks >= 30){
+    trump.style.opacity = 1;
+    merz1.style.opacity = 0;
+    merz2.style.opacity = 0;
+    switched = true;
+  }
+
+  // Hinweis bei Klick 15 anzeigen und nach 2s wieder ausblenden
+  if(clicks === 15){
+    hint.style.opacity = 1;
+    setTimeout(()=>{ hint.style.opacity = 0; }, 2000);
+  }
+}
+
+// Klick & Enter/Space
+stage.addEventListener('click', handleClick);
+stage.addEventListener('keydown', e => {
+  if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); handleClick(); }
+});
 </script>
 
 </body>
