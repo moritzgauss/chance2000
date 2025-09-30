@@ -10,10 +10,9 @@
   body { display:flex; flex-direction:column; align-items:center; padding:20px 10px; }
   header { margin-bottom:10px; }
   header h1 { margin:0; line-height:1.1; font-weight:700; font-size:clamp(48px,10vw,110px); }
-  .cta { display:none; }
   .stage { position:relative; display:inline-block; width:90vw; max-width:680px; aspect-ratio:4/3; overflow:hidden; margin:0 auto 15px; background:#fff; }
   .stage img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; mix-blend-mode:multiply; user-select:none; pointer-events:none; opacity:0; transition: opacity 0.5s linear; }
-  .img-front { z-index:1; opacity:1; }
+  .img-front { z-index:1; opacity:1; } /* Merz von Anfang sichtbar */
   .img-back { z-index:0; }
   .counter { font-size:28px; font-weight:700; margin-bottom:5px; }
   .extras { font-size:24px; margin-bottom:30px; min-height:30px; }
@@ -73,12 +72,12 @@ function handleClick(){
 
   // Extras-Text unter Counter
   if(clicks >= 15 && clicks < 30){
-    extras.textContent = "👅 🐩 👮🏻";
+    extras.textContent = "Keep going 👅 🐩 👮🏻";
   } else if(clicks >= 30){
     extras.textContent = "";
   }
 
-  // Langsames Einblenden Trump (ab 15/20 Klicks)
+  // Langsames Einblenden Trump (ab 15 Klicks)
   if(clicks >= 15 && clicks < 30 && !switched && !animating){
     animating = true;
     trump.style.transition = 'opacity 8s linear';
