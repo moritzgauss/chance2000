@@ -27,36 +27,31 @@
     margin: 0;
   }
 
+  .cta {
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 20px;
+  }
+
   .stage {
     position: relative;
     display: inline-block;
-    max-width: 90vw;
     width: 600px;
-    cursor: pointer;
+    max-width: 90vw;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
   }
   .stage img {
     position: absolute;
     top: 0; left: 0;
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
     transition: opacity 4s linear;
     mix-blend-mode: multiply;
-    display: block;
   }
-  .img-back { opacity: 0; }
   .img-front { opacity: 1; }
-
-  .cta {
-    position: absolute;
-    top: 10px; 
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(255,255,255,0.8);
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-weight: bold;
-    pointer-events: none;
-  }
+  .img-back { opacity: 0; }
 
   .counter {
     margin-top: 20px;
@@ -64,15 +59,12 @@
     font-weight: bold;
   }
 
-  footer {
-    margin: 40px 0;
-    font-size: 14px;
-    color: #444;
-  }
   details {
-    margin: 0 auto;
+    margin: 30px auto;
     max-width: 600px;
     text-align: left;
+    font-size: 14px;
+    color: #444;
   }
 </style>
 </head>
@@ -83,8 +75,9 @@
   <p>2000</p>
 </header>
 
+<div class="cta" id="cta">Klick mich 👅</div>
+
 <div class="stage" id="stage">
-  <div class="cta" id="cta">Klick mich 👅</div>
   <img src="https://www1.wdr.de/nachrichten/friedrich-merz-220~_v-ARDFotogalerie.jpg" 
        alt="Friedrich Merz" class="img-front" id="merz">
   <img src="https://image.stern.de/36071216/t/yH/v2/w1440/r1/-/donald-trump.jpg" 
@@ -93,16 +86,14 @@
 
 <div class="counter" id="counter">0</div>
 
-<footer>
-  <details>
-    <summary>Summary / Info</summary>
-    <p>
-      Idee frei nach Christoph Schlingensief (RIP).  
-      Bilderquelle: WDR (Friedrich Merz) und Stern (Donald Trump).  
-      Klicks werden gezählt und lokal gespeichert.
-    </p>
-  </details>
-</footer>
+<details>
+  <summary>Summary / Info</summary>
+  <p>
+    Idee frei nach Christoph Schlingensief (RIP).  
+    Bilderquelle: WDR (Friedrich Merz) und Stern (Donald Trump).  
+    Klicks werden gezählt und lokal gespeichert.
+  </p>
+</details>
 
 <script>
   const stage = document.getElementById("stage");
