@@ -2,67 +2,103 @@
 <html lang="de">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
 <title>CHANCE 2000</title>
 <style>
+  :root{
+    --anim-duration: 4s;
+    --max-width: 900px;
+  }
+
+  html,body{height:100%; margin:0}
   body {
-    margin: 0;
     font-family: Helvetica, Arial, sans-serif;
     background: #fff;
     color: #000;
-    text-align: center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    padding:32px 18px;
   }
 
-  header {
-    margin: 40px 0 20px;
-  }
+  header { width:100%; max-width:var(--max-width); margin-bottom:20px; }
   header h1 {
-    font-size: clamp(48px, 12vw, 120px);
-    margin: 0;
-    font-weight: bold;
-    line-height: 1.1;
+    margin:0;
+    font-weight:700;
+    line-height:1.05;
+    font-size:clamp(48px,10vw,110px);
   }
 
-  .cta {
-    margin: 20px 0 10px;
-    font-weight: bold;
-    font-size: 22px;
-  }
-
+  /* Stage: 4:3 container */
   .stage {
-    position: relative;
-    display: inline-block;
-    width: 600px;
-    max-width: 90vw;
-    aspect-ratio: 3 / 4;
-    overflow: hidden;
+    position:relative;
+    width: min(90vw, 680px);
+    max-width:var(--max-width);
+    aspect-ratio: 4 / 3;
+    overflow:hidden;
+    background:#fff;
+    margin: 10px 0;
   }
+
   .stage img {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: opacity 4s linear;
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    transition: opacity var(--anim-duration) linear;
     mix-blend-mode: multiply;
+    -webkit-user-drag: none;
+    user-drag: none;
+    user-select: none;
   }
-  .img-front { opacity: 1; }
-  .img-back { opacity: 0; }
+  .img-front { opacity:1; z-index:1; }
+  .img-back  { opacity:0; z-index:0; }
+
+  /* Klick mich overlay (zentriert über dem Bild) */
+  .cta {
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    z-index:2;
+    background: rgba(255,255,255,0.9);
+    padding:10px 16px;
+    border-radius:999px;
+    font-weight:700;
+    font-size:18px;
+    cursor:pointer;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  }
 
   .counter {
-    margin-top: 20px;
-    font-size: 32px;
-    font-weight: bold;
+    margin-top:18px;
+    font-size:32px;
+    font-weight:700;
   }
 
-  .info {
-    margin: 60px auto 40px;
-    max-width: 700px;
-    font-size: 18px;
-    line-height: 1.6;
-    color: #333;
-    text-align: left;
-    padding: 0 20px;
+  details {
+    margin-top:38px;
+    max-width:720px;
+    width:90%;
+    text-align:left;
+    font-size:16px;
+    color:#333;
+  }
+  /* remove default marker */
+  summary {
+    font-weight:700;
+    font-size:18px;
+    cursor:pointer;
+    outline:none;
+  }
+  summary::-webkit-details-marker { display:none; }
+
+  /* small responsive tweaks */
+  @media (max-width:420px){
+    .cta{ font-size:16px; padding:8px 12px }
+    .counter{ font-size:26px }
   }
 </style>
 </head>
@@ -72,40 +108,74 @@
   <h1>CHANCE<br>2000</h1>
 </header>
 
-<div class="cta" id="cta">Klick mich 👅</div>
-
-<div class="stage" id="stage">
-  <img src="https://www1.wdr.de/nachrichten/friedrich-merz-220~_v-ARDFotogalerie.jpg" 
-       alt="Friedrich Merz" class="img-front" id="merz">
-  <img src="https://images.tagesschau.de/image/f77d60ed-be84-4d34-8487-a42989a7ac9e/AAABl89YRRc/AAABmKJJykw/16x7/trump-4076.jpg?width=1280" 
-       alt="Donald Trump" class="img-back" id="trump">
+<div class="stage" id="stage" aria-label="Bildbereich: Klick mich, um zu morphen" role="button" tabindex="0">
+  <img id="merz"  class="img-front"
+       src="https://www1.wdr.de/nachrichten/friedrich-merz-220~_v-ARDFotogalerie.jpg"
+       alt="Friedrich Merz">
+  <img id="trump" class="img-back"
+       src="https://images.tagesschau.de/image/f77d60ed-be84-4d34-8487-a42989a7ac9e/AAABl89YRRc/AAABmKJJykw/16x7/trump-4076.jpg?width=1280"
+       alt="Donald Trump">
+  <div class="cta" id="cta">Klick mich 👅</div>
 </div>
 
 <div class="counter" id="counter">0</div>
 
-<div class="info">
-  <strong>Info</strong><br><br>
-  Idee frei nach Christoph Schlingensief (RIP).<br>
-  Bilderquelle: WDR (Friedrich Merz) und Tagesschau (Donald Trump).<br>
-  Klicks werden gezählt, aber nicht gespeichert.
-</div>
+<details>
+  <summary>Info</summary>
+  <div style="margin-top:10px;line-height:1.6">
+    Idee frei nach Christoph Schlingensief (RIP).<br>
+    Bilderquelle: WDR (Friedrich Merz) und Tagesschau (Donald Trump).<br>
+    Klicks werden nur während dieser Session gezählt (keine Speicherung).
+  </div>
+</details>
 
 <script>
-  const stage = document.getElementById("stage");
-  const merz = document.getElementById("merz");
-  const trump = document.getElementById("trump");
-  const counter = document.getElementById("counter");
-  const cta = document.getElementById("cta");
+  const stage = document.getElementById('stage');
+  const cta = document.getElementById('cta');
+  const merz = document.getElementById('merz');
+  const trump = document.getElementById('trump');
+  const counter = document.getElementById('counter');
 
   let clicks = 0;
+  let animating = false;
+  let revealed = false;
+  const ANIM_MS = 4000; // entspricht --anim-duration: 4s
 
-  stage.addEventListener("click", () => {
+  function animateMorph(){
+    if (animating || revealed) return;
+    animating = true;
     clicks++;
     counter.textContent = clicks;
 
+    // Start crossfade (multiply mode is via CSS)
     trump.style.opacity = 1;
     merz.style.opacity = 0;
-    cta.style.display = "none";
+
+    // fade out CTA then hide it
+    cta.style.transition = 'opacity 220ms ease';
+    cta.style.opacity = 0;
+    setTimeout(()=> cta.style.display = 'none', 240);
+
+    // end state after animation
+    setTimeout(()=>{
+      revealed = true;
+      animating = false;
+      // ensure final opacity
+      trump.style.opacity = 1;
+      merz.style.opacity = 0;
+    }, ANIM_MS + 50);
+  }
+
+  // click/tap on stage or CTA
+  stage.addEventListener('click', animateMorph);
+  cta.addEventListener('click', (e)=> { e.preventDefault(); e.stopPropagation(); animateMorph(); });
+
+  // keyboard accessibility: Enter / Space triggers
+  stage.addEventListener('keydown', (e)=>{
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      animateMorph();
+    }
   });
 </script>
 
