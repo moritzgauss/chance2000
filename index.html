@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="de">
 <head>
@@ -11,6 +12,21 @@
   header { margin-bottom:10px; }
   header h1 { margin:0; line-height:1.1; font-weight:700; font-size:clamp(48px,10vw,110px); }
   .cta { margin-bottom:10px; font-weight:700; font-size:20px; }
+  
+  /* Platz für GIF */
+  .gif-slot { 
+    height:150px; /* fester Platz damit nix springt */
+    display:flex; 
+    align-items:center; 
+    justify-content:center; 
+    margin-bottom:15px;
+  }
+  .gif-slot img {
+    max-height:100%;
+    max-width:100%;
+    display:none;
+  }
+
   .stage { position:relative; display:inline-block; width:90vw; max-width:680px; aspect-ratio:4/3; overflow:hidden; margin:0 auto 15px; background:#fff; }
   .stage img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition: opacity 1s linear; mix-blend-mode:multiply; user-select:none; pointer-events:none; }
   .img-front { opacity:1; z-index:2; }
@@ -31,12 +47,17 @@
 
 <div class="cta">Klick mich 👅</div>
 
+<!-- GIF-Slot -->
+<div class="gif-slot">
+  <img id="clickGif" src="https://raw.githubusercontent.com/moritzgauss/chance2000/refs/heads/main/IMG_9407.gif" alt="Click Effect">
+</div>
+
 <div class="stage" id="stage" tabindex="0" role="button">
   <img id="merz1" class="img-front"
        src="https://cdn.prod.www.spiegel.de/images/9a30ebea-1301-4f90-baf4-a28990751a80_w1296_r1.525320317266626_fpx45.22_fpy45.webp"
        alt="Friedrich Merz">
   <img id="merz2" class="img-merz2"
-       src="https://www1.wdr.de/nachrichten/friedrich-merz-220~_v-ARDFotogalerie.jpg"
+       src="https://cdn.prod.https://www1.wdr.de/nachrichten/friedrich-merz-220~_v-ARDFotogalerie.jpg"
        alt="Friedrich Merz 2">
   <img id="trump" class="img-back"
        src="https://images.tagesschau.de/image/f77d60ed-be84-4d34-8487-a42989a7ac9e/AAABl89YRRc/AAABmKJJykw/16x7/trump-4076.jpg?width=1280"
@@ -49,8 +70,8 @@
 <details>
   <summary>Info</summary>
   <div style="margin-top:10px; line-height:1.6">
-    Idee frei nach Christoph Schlingensief (RIP).<br>
-     </div>
+    Chance 2000 Partei Christoph Schlingensief (R.I.P.).
+  </div>
 </details>
 
 <!-- Audio -->
@@ -64,6 +85,7 @@ const trump = document.getElementById('trump');
 const counter = document.getElementById('counter');
 const hint = document.getElementById('hint');
 const audio = document.getElementById('clickSound');
+const clickGif = document.getElementById('clickGif');
 
 let clicks = 0;
 let switched = false;
@@ -72,26 +94,29 @@ function handleClick() {
   clicks++;
   counter.textContent = clicks;
 
-  // Sound abspielen
+  // Sound
   audio.currentTime = 0;
   audio.play().catch(()=>{});
 
-  // Erst 10 Klicks: nur merz1 sichtbar
+  // GIF anzeigen
+  clickGif.style.display = "block";
+  clickGif.src = clickGif.src.split("?")[0] + "?" + new Date().getTime(); // Trick: GIF restart
+  setTimeout(()=>{ clickGif.style.display = "none"; }, 200); // nur 0.2s sichtbar für schnelles Tempo
+
+  // Bildlogik
   if(clicks <= 10){
     merz1.style.opacity = 1;
     merz2.style.opacity = 0;
     trump.style.opacity = 0;
   }
 
-  // Ab Klick 11: merz2 langsam einblenden
   if(clicks >= 11 && clicks < 30){
-    const t = (clicks - 10) / 20; // zwischen 0 und 1
+    const t = (clicks - 10) / 20;
     merz1.style.opacity = 1 - t;
     merz2.style.opacity = t;
-    trump.style.opacity = t * 0.5; // Trump langsam durchscheinen lassen
+    trump.style.opacity = t * 0.5;
   }
 
-  // Ab Klick 30: Trump voll einblenden
   if(clicks >= 30){
     trump.style.opacity = 1;
     merz1.style.opacity = 0;
@@ -99,17 +124,15 @@ function handleClick() {
     switched = true;
   }
 
-  // Hinweis bei Klick 15 anzeigen und nach 2s wieder ausblenden
   if(clicks === 15){
     hint.style.opacity = 1;
     setTimeout(()=>{ hint.style.opacity = 0; }, 2000);
   }
 }
 
-// Klick & Enter/Space
 stage.addEventListener('click', handleClick);
-stage.addEventListener('keydown', e => {
-  if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); handleClick(); }
+stage.addEventListener('keydown', e=>{
+  if(e.key==='Enter'||e.key===' '){ e.preventDefault(); handleClick(); }
 });
 </script>
 
