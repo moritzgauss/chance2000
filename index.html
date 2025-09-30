@@ -49,31 +49,36 @@
   </div>
 </details>
 
+<!-- Audio -->
+<audio id="clickSound" src="https://raw.githubusercontent.com/moritzgauss/chance2000/refs/heads/main/slap-soundmaster13-49669815_4L20wGP.mp3"></audio>
+
 <script>
   const stage = document.getElementById('stage');
   const merz = document.getElementById('merz');
   const trump = document.getElementById('trump');
   const counter = document.getElementById('counter');
+  const audio = document.getElementById('clickSound');
 
   let clicks = 0;
-  const threshold = 30;  // Anzahl Klicks bis zum ersten Wechsel
+  const threshold = 30;
   let switched = false;
 
   function handleClick(){
     clicks++;
     counter.textContent = clicks;
 
+    // Play sound on each click
+    audio.currentTime = 0;
+    audio.play().catch(()=>{}); // catch errors in case of autoplay restrictions
+
     if(!switched && clicks >= threshold){
-      // Erstes morphing nach threshold
       trump.style.transition = 'opacity 4s linear';
       trump.style.opacity = 1;
       merz.style.opacity = 0;
       switched = true;
     } else if(switched){
-      // Danach jeder Klick schneller
       trump.style.transition = 'opacity 0.3s linear';
       merz.style.transition = 'opacity 0.3s linear';
-      // Swap die Bilder schnell
       if(trump.style.opacity == "1"){
         trump.style.opacity = 0;
         merz.style.opacity = 1;
@@ -86,7 +91,7 @@
 
   stage.addEventListener('click', handleClick);
   stage.addEventListener('keydown', e=>{
-    if(e.key==='Enter'||e.key===' ') { e.preventDefault(); handleClick(); }
+    if(e.key==='Enter'||e.key===' '){ e.preventDefault(); handleClick(); }
   });
 </script>
 
