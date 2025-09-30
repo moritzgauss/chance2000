@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>CHANCE</title>
+<style>
+  /* Ultra minimal */
+  :root{
+    --bg:#f7f7f7;
+    --text:#111;
+    --muted:#666;
+    --duration:4000ms; /* Dauer der Morph-Animation */
+    --max-width:1200px;
+  }
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family: "Helvetica", Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    min-height:100vh;
+  }
+
+  /* Header — bildschirmbreit, CHANCE + 2000 */
+  header{
+    width:100%;
+    box-sizing:border-box;
+    padding:40px 16px;
+    text-align:center;
+    background:transparent;
+  }
+  header h1{
+    margin:0;
+    font-size:clamp(32px,8vw,96px);
+    letter-spacing:6px;
+    font-weight:700;
+  }
+  header p.sub{
+    margin:8px 0 0;
+    font-size:clamp(12px,2.6vw,22px);
+    opacity:0.85;
+  }
+
+  /* Main visual area */
+  main{
+    flex:1 0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:40px 16px;
+  }
+  .stage{
+    width: min(920px, 95vw);
+    max-width:var(--max-width);
+    aspect-ratio: 3 / 4; /* portrait look */
+    position:relative;
+    overflow:hidden;
+    border-radius:6px;
+    box-shadow: 0 6px 30px rgba(0,0,0,0.08);
+    background: #fff;
+  }
+
+  .stage img{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+    -webkit-user-select:none;
+    user-select:none;
+    pointer-events:none;
+    transition:opacity calc(var(--duration)) linear;
+  }
+
+  /* top image initially opaque (Merz), bottom image is Trump behind it
+     We'll animate opacity of the top image from 1 -> 0 to reveal the bottom one */
+  .img-top{ z-index:2; opacity:1; }
+  .img-bottom{ z-index:1; opacity:1; }
+
+  /* overlay CTA text on the top image */
+  .cta{
+    position:absolute;
+    z-index:3;
+    left:0; right:0;
+    bottom:18%;
+    display:flex;
+    justify-content:center;
+    pointer-events:none;
+  }
+  .cta .pill{
+    background:rgba(255,255,255,0.85);
+    padding:10px 16px;
+    border-radius:999px;
+    font-weight:600;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    pointer-events:auto;
+  }
+
+  /* click counter */
+  .meta{
+    position:absolute;
+    z-index:4;
+    top:8px;
+    left:8px;
+    font-size:13px;
+    color:var(--muted);
+    background:rgba(255,255,255,0.6);
+    padding:6px 10px;
+    border-radius:6px;
+    backdrop-filter: blur(4px);
+  }
+
+  /* Footer */
+  footer{
+    padding:20px 16px;
+    font-size:13px;
+    color:var(--muted);
+    text-align:center;
+  }
+  footer a{ color:inherit; text-decoration:underline; opacity:0.9 }
+
+  /* Responsive touch target: clicking anywhere on stage triggers morph */
+  .stage::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    z-index:5;
+    cursor:pointer;
+  }
+
+</style>
+</head>
+<body>
+
+<header>
+  <h1>CHANCE</h1>
+  <p class="sub">2000</p>
+</header>
+
+<main>
+  <div class="stage" id="stage" title="Klick mich 👅">
+    <div class="meta" id="counter">Klicks: 0</div>
+
+    <!-- bottom: Donald Trump (will be revealed) -->
+    <img
+      class="img-bottom"
+      id="imgTrump"
+      src="https://upload.wikimedia.org/wikipedia/commons/8/8d/Donald_Trump_official_portrait.jpg"
+      alt="Donald Trump (Wikimedia)">
+    <!-- top: Friedrich Merz -->
+    <img
+      class="img-top"
+      id="imgMerz"
+      src="https://upload.wikimedia.org/wikipedia/commons/1/12/Friedrich_Merz%2C_EPP_Political_Assembly%2C_04-05_May%2C_Munich_%28cropped%29.jpg"
+      alt="Friedrich Merz (Wikimedia)">
+
+    <div class="cta" id="cta">
+      <div class="pill">Klick mich 👅</div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div>
+    <strong>Summary / Info</strong><br>
+    Idee/Referenz: eine Hommage an Christoph Schlingensief — RIP. Bilder von Wikimedia Commons (siehe Dateiseiten). Bitte Lizenzbedingungen der einzelnen Dateien prüfen, bevor du die Seite veröffentlichtst. 
+  </div>
+</footer>
+
+<script>
+/* Ultra-minimal JS:
+ - Zählt Klicks (localStorage)
+ - Bei Klick: animiert die opacity der oberen Bild-Ebene von 1 -> 0 über --duration
+ - Nach der ersten Klick-Animation bleibt das Ergebnis (Trump sichtbar)
+ - CTA verschwindet nach erstem Klick
+*/
+
+const DURATION = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--duration')) || 4000;
+const imgTop = document.getElementById('imgMerz');
+const stage = document.getElementById('stage');
+const counter = document.getElementById('counter');
+const cta = document.getElementById('cta');
+
+let clicks = Number(localStorage.getItem('chance_clicks') || 0);
+counter.textContent = 'Klicks: ' + clicks;
+
+let animating = false;
+let revealed = localStorage.getItem('chance_revealed') === '1';
+if (revealed) {
+  // if previously revealed, hide the top image immediately
+  imgTop.style.transition = 'opacity 0s linear';
+  imgTop.style.opacity = 0;
+  if (cta) cta.style.display = 'none';
+}
+
+function animateMorph() {
+  if (animating || revealed) return;
+  animating = true;
+
+  // update clicks
+  clicks++;
+  localStorage.setItem('chance_clicks', clicks);
+  counter.textContent = 'Klicks: ' + clicks;
+
+  // remove CTA after first click
+  if (cta) cta.style.opacity = '1';
+  // animate by switching transition to the CSS duration and setting opacity to 0
+  imgTop.style.transition = 'opacity ' + (DURATION/1000) + 's linear';
+  requestAnimationFrame(() => {
+    imgTop.style.opacity = 0;
+    if (cta) cta.style.opacity = '0';
+  });
+
+  // after animation ends, mark revealed
+  setTimeout(() => {
+    revealed = true;
+    localStorage.setItem('chance_revealed','1');
+    animating = false;
+    if (cta) cta.style.display = 'none';
+  }, DURATION + 50);
+}
+
+// click/tap anywhere on the stage toggles (but only triggers once to reveal)
+stage.addEventListener('click', animateMorph);
+stage.addEventListener('keydown', (e)=>{
+  if (e.key === 'Enter' || e.key === ' ') animateMorph();
+});
+
+// Accessibility: allow keyboard focus
+stage.tabIndex = 0;
+stage.setAttribute('aria-label','Bild: Klick mich um Morph zu starten');
+
+</script>
+</body>
+</html>
