@@ -5,91 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 <title>CHANCE 2000</title>
 <style>
-  * { box-sizing: border-box; }
-  html, body {
-    margin:0;
-    padding:0;
-    font-family: Helvetica, Arial, sans-serif;
-    background: #fff;
-    color: #000;
-    text-align:center;
-    width: 100%;
-  }
-
-  body {
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    padding: 20px 10px;
-  }
-
-  header {
-    margin-bottom: 10px;
-  }
-  header h1 {
-    margin:0;
-    line-height:1.1;
-    font-weight:700;
-    font-size: clamp(48px,10vw,110px);
-  }
-
-  .cta {
-    margin: 10px 0;
-    font-weight:700;
-    font-size:20px;
-    cursor:pointer;
-  }
-
-  .stage {
-    position: relative;
-    width: 90vw;
-    max-width: 680px;
-    aspect-ratio: 4/3;
-    overflow:hidden;
-    margin: 0 auto 15px;
-    background: #fff;
-  }
-
-  .stage img {
-    position:absolute;
-    inset:0;
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    transition: opacity 4s linear;
-    mix-blend-mode: multiply;
-    user-select:none;
-    pointer-events:none;
-  }
-
+  * { box-sizing:border-box; }
+  html, body { margin:0; padding:0; width:100%; font-family:Helvetica, Arial, sans-serif; background:#fff; color:#000; text-align:center; }
+  body { display:flex; flex-direction:column; align-items:center; padding:20px 10px; }
+  header { margin-bottom:10px; }
+  header h1 { margin:0; line-height:1.1; font-weight:700; font-size:clamp(48px,10vw,110px); }
+  .cta { margin-bottom:10px; font-weight:700; font-size:20px; }
+  .stage { position:relative; display:inline-block; width:90vw; max-width:680px; aspect-ratio:4/3; overflow:hidden; margin:0 auto 15px; background:#fff; }
+  .stage img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition: opacity 0.5s linear; mix-blend-mode:multiply; user-select:none; pointer-events:none; }
   .img-front { opacity:1; z-index:1; }
   .img-back { opacity:0; z-index:0; }
-
-  .counter {
-    font-size:28px;
-    font-weight:700;
-    margin-bottom: 30px;
-  }
-
-  details {
-    max-width: 90vw;
-    width: 700px;
-    text-align:left;
-    font-size:16px;
-    color:#333;
-    margin-bottom:20px;
-  }
-  summary {
-    font-weight:700;
-    font-size:18px;
-    cursor:pointer;
-  }
+  .counter { font-size:28px; font-weight:700; margin-bottom:30px; }
+  details { max-width:90vw; width:700px; text-align:left; font-size:16px; color:#333; margin-bottom:20px; }
+  summary { font-weight:700; font-size:18px; cursor:pointer; }
   summary::-webkit-details-marker { display:none; }
-
-  @media (max-width:400px){
-    .counter { font-size:24px; }
-    .cta { font-size:18px; }
-  }
 </style>
 </head>
 <body>
@@ -98,9 +27,9 @@
   <h1>CHANCE<br>2000</h1>
 </header>
 
-<div class="cta" id="cta">Klick mich 👅</div>
+<div class="cta">Klick mich 👅</div>
 
-<div class="stage" id="stage" tabindex="0" role="button" aria-label="Bildbereich: Klick mich">
+<div class="stage" id="stage" tabindex="0" role="button">
   <img id="merz" class="img-front"
        src="https://www1.wdr.de/nachrichten/friedrich-merz-220~_v-ARDFotogalerie.jpg"
        alt="Friedrich Merz">
@@ -127,22 +56,37 @@
   const counter = document.getElementById('counter');
 
   let clicks = 0;
+  const threshold = 30;  // Anzahl Klicks bis zum ersten Wechsel
+  let switched = false;
 
   function handleClick(){
     clicks++;
     counter.textContent = clicks;
-    // morphing Bilder
-    trump.style.opacity = 1;
-    merz.style.opacity = 0;
+
+    if(!switched && clicks >= threshold){
+      // Erstes morphing nach threshold
+      trump.style.transition = 'opacity 4s linear';
+      trump.style.opacity = 1;
+      merz.style.opacity = 0;
+      switched = true;
+    } else if(switched){
+      // Danach jeder Klick schneller
+      trump.style.transition = 'opacity 0.3s linear';
+      merz.style.transition = 'opacity 0.3s linear';
+      // Swap die Bilder schnell
+      if(trump.style.opacity == "1"){
+        trump.style.opacity = 0;
+        merz.style.opacity = 1;
+      } else {
+        trump.style.opacity = 1;
+        merz.style.opacity = 0;
+      }
+    }
   }
 
-  // Event
   stage.addEventListener('click', handleClick);
   stage.addEventListener('keydown', e=>{
-    if(e.key==='Enter'||e.key===' '){
-      e.preventDefault();
-      handleClick();
-    }
+    if(e.key==='Enter'||e.key===' ') { e.preventDefault(); handleClick(); }
   });
 </script>
 
