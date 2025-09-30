@@ -15,11 +15,11 @@
   
   /* Platz für GIF */
   .gif-slot { 
-    height:150px; /* fester Platz damit nix springt */
+    height:100px; /* fester Platz damit nix springt */
     display:flex; 
     align-items:center; 
     justify-content:center; 
-    margin-bottom:15px;
+    margin-bottom:0;
   }
   .gif-slot img {
     max-height:100%;
@@ -101,7 +101,7 @@ function handleClick() {
   // GIF anzeigen
   clickGif.style.display = "block";
   clickGif.src = clickGif.src.split("?")[0] + "?" + new Date().getTime(); // Trick: GIF restart
-  setTimeout(()=>{ clickGif.style.display = "none"; }, 200); // nur 0.2s sichtbar für schnelles Tempo
+  setTimeout(()=>{ clickGif.style.display = "none"; }, 600); // nur 0.2s sichtbar für schnelles Tempo
 
   // Bildlogik
   if(clicks <= 10){
