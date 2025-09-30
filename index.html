@@ -10,9 +10,9 @@
   body { display:flex; flex-direction:column; align-items:center; padding:20px 10px; }
   header { margin-bottom:10px; }
   header h1 { margin:0; line-height:1.1; font-weight:700; font-size:clamp(48px,10vw,110px); }
-  .cta { margin-bottom:10px; font-weight:700; font-size:20px; }
+  .cta { display:none; }
   .stage { position:relative; display:inline-block; width:90vw; max-width:680px; aspect-ratio:4/3; overflow:hidden; margin:0 auto 15px; background:#fff; }
-  .stage img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; mix-blend-mode:multiply; user-select:none; pointer-events:none; opacity:0; }
+  .stage img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; mix-blend-mode:multiply; user-select:none; pointer-events:none; opacity:0; transition: opacity 0.5s linear; }
   .img-front { z-index:1; opacity:1; }
   .img-back { z-index:0; }
   .counter { font-size:28px; font-weight:700; margin-bottom:5px; }
@@ -28,8 +28,6 @@
   <h1>CHANCE<br>2000</h1>
 </header>
 
-<div class="cta">Klick mich 👅</div>
-
 <div class="stage" id="stage" tabindex="0" role="button">
   <img id="merz" class="img-front"
        src="https://www1.wdr.de/nachrichten/friedrich-merz-220~_v-ARDFotogalerie.jpg"
@@ -40,7 +38,7 @@
 </div>
 
 <div class="counter" id="counter">0</div>
-<div class="extras" id="extras">Keep going</div>
+<div class="extras" id="extras"></div>
 
 <details>
   <summary>Info</summary>
@@ -54,74 +52,63 @@
 <audio id="clickSound" src="https://raw.githubusercontent.com/moritzgauss/chance2000/refs/heads/main/slap-soundmaster13-49669815_4L20wGP.mp3"></audio>
 
 <script>
-  const stage = document.getElementById('stage');
-  const merz = document.getElementById('merz');
-  const trump = document.getElementById('trump');
-  const counter = document.getElementById('counter');
-  const extras = document.getElementById('extras');
-  const audio = document.getElementById('clickSound');
+const stage = document.getElementById('stage');
+const merz = document.getElementById('merz');
+const trump = document.getElementById('trump');
+const counter = document.getElementById('counter');
+const extras = document.getElementById('extras');
+const audio = document.getElementById('clickSound');
 
-  let clicks = 0;
-  const threshold = 30;
-  let switched = false;
-  let animating = false;
+let clicks = 0;
+let animating = false;
+let switched = false;
 
-  // Meme Sprüche ab 30 Klicks
-  const memes = [
-    "Catch me outside, how 'bout that?",
-    "Y U NO vote?",
-    "Not the president you wanted?",
-    "Make clicks great again!"
-  ];
+function handleClick(){
+  clicks++;
+  counter.textContent = clicks;
 
-  function handleClick(){
-    clicks++;
-    counter.textContent = clicks;
+  // Sound
+  audio.currentTime = 0;
+  audio.play().catch(()=>{});
 
-    // Sound
-    audio.currentTime = 0;
-    audio.play().catch(()=>{});
-
-    // Update extras text
-    if(clicks < 5){
-      extras.textContent = "Keep going";
-    } else if(clicks < threshold){
-      extras.textContent = "Almost there…";
-    } else {
-      // Random meme from array
-      const idx = Math.floor(Math.random()*memes.length);
-      extras.textContent = memes[idx];
-    }
-
-    if(!switched && clicks >= threshold && !animating){
-      animating = true;
-      trump.style.transition = 'opacity 8s linear';
-      merz.style.transition = 'opacity 8s linear';
-      trump.style.opacity = 1;
-      merz.style.opacity = 0;
-      switched = true;
-      setTimeout(()=> animating=false, 8000);
-    } else if(switched && !animating){
-      animating = true;
-      // Schneller Wechsel nach jedem Klick
-      const currentTrump = parseFloat(getComputedStyle(trump).opacity);
-      trump.style.transition = 'opacity 0.3s linear';
-      merz.style.transition = 'opacity 0.3s linear';
-      if(currentTrump > 0.5){
-        trump.style.opacity = 0;
-        merz.style.opacity = 1;
-      } else {
-        trump.style.opacity = 1;
-        merz.style.opacity = 0;
-      }
-      setTimeout(()=> animating=false, 350);
-    }
+  // Extras-Text unter Counter
+  if(clicks >= 15 && clicks < 30){
+    extras.textContent = "👅 🐩 👮🏻";
+  } else if(clicks >= 30){
+    extras.textContent = "";
   }
 
-  stage.addEventListener('click', handleClick);
-  stage.addEventListener('keydown', e=>{
-    if(e.key==='Enter'||e.key===' '){ e.preventDefault(); handleClick(); }
-  });
+  // Langsames Einblenden Trump (ab 15/20 Klicks)
+  if(clicks >= 15 && clicks < 30 && !switched && !animating){
+    animating = true;
+    trump.style.transition = 'opacity 8s linear';
+    merz.style.transition = 'opacity 8s linear';
+    trump.style.opacity = 1;
+    switched = true;
+    setTimeout(()=> animating=false, 8000);
+  }
+
+  // Schneller Wechsel ab 30 Klicks
+  if(clicks >= 30 && !animating){
+    animating = true;
+    trump.style.transition = 'opacity 0.3s linear';
+    merz.style.transition = 'opacity 0.3s linear';
+    const currentTrump = parseFloat(getComputedStyle(trump).opacity);
+    if(currentTrump > 0.5){
+      trump.style.opacity = 0;
+      merz.style.opacity = 1;
+    } else {
+      trump.style.opacity = 1;
+      merz.style.opacity = 0;
+    }
+    setTimeout(()=> animating=false, 350);
+  }
+}
+
+stage.addEventListener('click', handleClick);
+stage.addEventListener('keydown', e=>{
+  if(e.key==='Enter'||e.key===' '){ e.preventDefault(); handleClick(); }
+});
 </script>
 
 </body>
